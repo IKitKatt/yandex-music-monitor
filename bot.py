@@ -52,6 +52,4 @@ class TelegramBot:
             else:
                 message += f"➡️ <b>Изменение:</b> без изменений\n"
 
-        message += f"\n🕒 <i>Обновлено каждый час</i>\n"
-        message += f"🔍 <i>Данные получены из likesCount</i>"
         return message

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  yandex-music-monitor:
+    build: .
+    container_name: yandex-music-monitor
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+      - TELEGRAM_CHAT_ID=your_chat_id_here
+      - YANDEX_MUSIC_URL=https://music.yandex.ru/album/
+      - MONITOR_INTERVAL=3600
+    volumes:
+      - ./logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

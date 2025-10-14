@@ -11,7 +11,7 @@ class Config:
     # Yandex Music URL
     YANDEX_MUSIC_URL: str = os.getenv('YANDEX_MUSIC_URL', 'https://music.yandex.ru/album/37711786')
 
-    # Monitoring interval in seconds
+    # Monitoring interval in seconds (default: 1 hour)
     MONITOR_INTERVAL: int = int(os.getenv('MONITOR_INTERVAL', 3600))
 
     # Request headers to mimic real browser
@@ -26,6 +26,23 @@ class Config:
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
         }
+
+        # Валидация конфигурации
+        self._validate_config()
+
+    def _validate_config(self):
+        """Проверяет корректность конфигурации"""
+        if not self.TELEGRAM_BOT_TOKEN:
+            raise ValueError("TELEGRAM_BOT_TOKEN не установлен")
+
+        if not self.TELEGRAM_CHAT_ID:
+            raise ValueError("TELEGRAM_CHAT_ID не установлен")
+
+        if self.MONITOR_INTERVAL < 60:
+            print("Предупреждение: MONITOR_INTERVAL меньше 60 секунд. Это может привести к блокировке запросов.")
+
+        if self.MONITOR_INTERVAL > 86400:
+            print("Предупреждение: MONITOR_INTERVAL больше 24 часов.")
 
 
 config = Config()

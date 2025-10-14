@@ -54,52 +54,62 @@ class Monitor:
         # Первоначальная отправка сообщения о запуске
         startup_message = "🚀 <b>Мониторинг Яндекс.Музыки запущен!</b>\n\n"
         startup_message += f"📊 Отслеживается страница: {config.YANDEX_MUSIC_URL}\n"
-        startup_message += f"⏰ Интервал проверки: {config.MONITOR_INTERVAL // 3600} час(а/ов)\n"
+        startup_message += f"⏰ Интервал публикации: {config.MONITOR_INTERVAL} секунд\n"
         startup_message += f"🔍 Метод парсинга: поиск likesCount в исходном коде"
         self.bot.send_message(startup_message)
 
+        iteration = 0
         while self.is_running:
             try:
-                self.logger.info("Проверка количества подписчиков...")
+                iteration += 1
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                self.logger.info(f"Итерация #{iteration} - Проверка количества подписчиков...")
 
                 # Получаем текущее количество подписчиков
                 current_count = self.parser.get_subscribers_count()
 
                 if current_count > 0:
-                    # Формируем и отправляем сообщение
+                    # Формируем и отправляем сообщение (всегда отправляем, а не только при изменении)
                     message = self.bot.format_subscribers_message(
                         current_count,
-                        self.last_count
+                        self.last_count,
+                        current_time,
+                        iteration
                     )
 
-                    # Отправляем сообщение только если количество изменилось или это первая проверка
-                    if self.last_count is None or current_count != self.last_count:
-                        if self.bot.send_message(message):
-                            self.last_count = current_count
+                    # Всегда отправляем сообщение с текущей статистикой
+                    if self.bot.send_message(message):
+                        self.last_count = current_count
+                        self.logger.info(f"Сообщение #{iteration} успешно отправлено")
                     else:
-                        self.logger.info("Количество подписчиков не изменилось")
+                        self.logger.error(f"Не удалось отправить сообщение #{iteration}")
                 else:
                     self.logger.warning("Не удалось получить количество подписчиков")
-                    # Отправляем сообщение об ошибке только если до этого были успешные запросы
-                    if self.last_count is not None:
-                        error_message = "❌ <b>Ошибка получения данных</b>\n\nНе удалось получить количество подписчиков. Проверьте доступность страницы."
-                        self.bot.send_message(error_message)
+                    # Отправляем сообщение об ошибке
+                    error_message = self.bot.format_error_message(current_time, iteration)
+                    self.bot.send_message(error_message)
 
                 # Логируем текущее состояние
-                self.logger.info(f"Текущее количество подписчиков: {current_count}")
+                self.logger.info(f"Итерация #{iteration} завершена. Подписчиков: {current_count}")
 
             except Exception as e:
-                self.logger.error(f"Ошибка в основном цикле: {e}")
+                self.logger.error(f"Ошибка в основном цикле на итерации #{iteration}: {e}")
                 # Отправляем сообщение об ошибке
-                error_message = f"❌ <b>Ошибка в работе монитора</b>\n\n{str(e)}"
+                error_message = self.bot.format_error_message(
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    iteration,
+                    str(e)
+                )
                 self.bot.send_message(error_message)
 
             # Ожидание до следующей проверки
             if self.is_running:
-                self.logger.info(f"Ожидание {config.MONITOR_INTERVAL} секунд до следующей проверки...")
-                for _ in range(config.MONITOR_INTERVAL):
+                self.logger.info(f"Ожидание {config.MONITOR_INTERVAL} секунд до следующей публикации...")
+                for i in range(config.MONITOR_INTERVAL):
                     if not self.is_running:
                         break
+                    if i % 60 == 0:  # Логируем каждую минуту ожидания
+                        self.logger.debug(f"Осталось {config.MONITOR_INTERVAL - i} секунд...")
                     time.sleep(1)
 
         # Отправляем сообщение об остановке

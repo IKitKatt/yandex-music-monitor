@@ -36,7 +36,8 @@ class TelegramBot:
             self.logger.error(f"Ошибка при отправке сообщения в Telegram: {e}")
             return False
 
-    def format_subscribers_message(self, count: int, previous_count: int = None) -> str:
+    def format_subscribers_message(self, count: int, previous_count: int = None,
+                                   timestamp: str = None, iteration: int = None) -> str:
         """
         Форматирует сообщение о количестве подписчиков
         """
@@ -51,5 +52,37 @@ class TelegramBot:
                 message += f"📉 <b>Изменение:</b> {difference}\n"
             else:
                 message += f"➡️ <b>Изменение:</b> без изменений\n"
+
+        if timestamp:
+            message += f"🕒 <b>Время проверки:</b> {timestamp}\n"
+
+        # Добавляем информацию об интервале
+        interval_minutes = config.MONITOR_INTERVAL // 60
+        interval_seconds = config.MONITOR_INTERVAL % 60
+
+        if interval_minutes > 0:
+            interval_text = f"{interval_minutes} мин {interval_seconds} сек"
+        else:
+            interval_text = f"{interval_seconds} сек"
+
+        message += f"\n⏰ <i>Следующее обновление через: {interval_text}</i>\n"
+        message += f"🔍 <i>Данные получены из likesCount</i>"
+
+        return message
+
+    def format_error_message(self, timestamp: str = None, iteration: int = None, error: str = None) -> str:
+        """
+        Форматирует сообщение об ошибке
+        """
+        message = "❌ <b>Ошибка получения данных</b>\n\n"
+        message += "Не удалось получить количество подписчиков.\n"
+
+        if error:
+            message += f"<b>Ошибка:</b> {error}\n"
+
+        if timestamp:
+            message += f"🕒 <b>Время проверки:</b> {timestamp}\n"
+
+        message += "\n⚠️ <i>Проверьте доступность страницы Яндекс.Музыки</i>"
 
         return message

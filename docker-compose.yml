@@ -2,18 +2,25 @@ version: '3.8'
 
 services:
   yandex-music-monitor:
+    image: ghcr.io/ikitkatt/yandex-music-monitor:latest
     build: .
     container_name: yandex-music-monitor
     restart: unless-stopped
     environment:
+      - PUID=1000
+      - PGID=1000
       - TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
       - TELEGRAM_CHAT_ID=your_chat_id_here
       - YANDEX_MUSIC_URL=https://music.yandex.ru/album/
       - MONITOR_INTERVAL=3600
     volumes:
       - ./logs:/app/logs
+      - monitor_data:/app/data
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  monitor_data:

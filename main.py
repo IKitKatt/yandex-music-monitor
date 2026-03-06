@@ -91,18 +91,21 @@ class Monitor:
                 if current_count > 0:
                     self.db.save_count(current_count)
 
-                    message = self.bot.format_subscribers_message(
-                        current_count,
-                        self.last_count,
-                        current_time,
-                        iteration
-                    )
+                    if current_count != self.last_count:
+                        message = self.bot.format_subscribers_message(
+                            current_count,
+                            self.last_count,
+                            current_time,
+                            iteration
+                        )
 
-                    if self.bot.send_message(message):
-                        self.last_count = current_count
-                        self.logger.info(f"Сообщение #{iteration} успешно отправлено")
+                        if self.bot.send_message(message):
+                            self.last_count = current_count
+                            self.logger.info(f"Сообщение #{iteration} успешно отправлено")
+                        else:
+                            self.logger.error(f"Не удалось отправить сообщение #{iteration}")
                     else:
-                        self.logger.error(f"Не удалось отправить сообщение #{iteration}")
+                        self.logger.info(f"Итерация #{iteration}: изменений нет, сообщение не отправлено")
                 else:
                     self.logger.warning("Не удалось получить количество подписчиков")
                     error_message = self.bot.format_error_message(current_time, iteration)

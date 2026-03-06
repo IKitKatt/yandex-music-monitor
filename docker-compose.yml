@@ -3,7 +3,6 @@ version: '3.8'
 services:
   yandex-music-monitor:
     image: ghcr.io/ikitkatt/yandex-music-monitor:latest
-    build: .
     container_name: yandex-music-monitor
     restart: unless-stopped
     environment:

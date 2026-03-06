@@ -28,7 +28,7 @@ class Monitor:
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.StreamHandler(sys.stdout),
-                logging.FileHandler('monitor.log')
+                logging.FileHandler('logs/monitor.log')
             ]
         )
         self.logger = logging.getLogger(__name__)

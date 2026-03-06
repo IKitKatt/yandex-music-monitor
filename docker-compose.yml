@@ -13,9 +13,12 @@ services:
       - MONITOR_INTERVAL=3600
     volumes:
       - ./logs:/app/logs
-      - ./data:/app/data
+      - monitor_data:/app/data
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  monitor_data:

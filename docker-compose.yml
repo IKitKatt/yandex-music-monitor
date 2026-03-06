@@ -1,9 +1,6 @@
-version: '3.8'
-
 services:
   yandex-music-monitor:
     image: ghcr.io/ikitkatt/yandex-music-monitor:latest
-    build: .
     container_name: yandex-music-monitor
     restart: unless-stopped
     environment:
@@ -15,12 +12,9 @@ services:
       - MONITOR_INTERVAL=3600
     volumes:
       - ./logs:/app/logs
-      - monitor_data:/app/data
+      - ./data:/app/data
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-
-volumes:
-  monitor_data:

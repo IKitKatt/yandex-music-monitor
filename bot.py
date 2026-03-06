@@ -104,9 +104,9 @@ class TelegramBot:
             period_label = "последние 30 дней (месяц)"
 
         message = f"📊 <b>Статистика за {period_label}</b>\n\n"
-        message += f"Было:       {was:,}\n"
-        message += f"Стало:      {became:,}\n"
-        message += f"Изменение: {change_str}"
+        message += f"Было: <b>{was:,}</b>\n"
+        message += f"Стало: <b>{became:,}</b>\n"
+        message += f"Изменение: <b>{change_str}</b>"
         return message
 
     def start_polling(self, db):
